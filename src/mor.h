@@ -67,6 +67,8 @@ struct Column : iColumn
     }
 
     void setValue(const char* str){
+        if(str == NULL)
+            return;
         stringstream ss(str);
         ss >> *(type*)value;
     }
@@ -94,7 +96,8 @@ struct Column<string> : iColumn
         return *(string*)value;
     }
     void setValue(const char* str){
-        *(string*)value = str;
+        if(str != NULL)
+            *(string*)value = str;
     }
     bool isNull() const{
         return ((string*)value)->empty();
@@ -123,6 +126,9 @@ struct Column<vector<int>> : iColumn
         return str;
     }
     void setValue(const char* str){
+        if(str == NULL)
+            return;
+
         char *token = std::strtok((char*)str, ",");
         while (token != NULL) {
             ((vector<int>*)value)->emplace_back(stoi(token));
@@ -153,6 +159,9 @@ struct Column<date_time> : iColumn
         return std::asctime(std::gmtime(&tp));
     }
     void setValue(const char* str){
+        if(str == NULL)
+            return;
+
         struct std::tm tm;
         std::istringstream ss(str);
         ss >> std::get_time(&tm, "%Y-%m-%d %H-%M-%S"); // or just %T in this case
