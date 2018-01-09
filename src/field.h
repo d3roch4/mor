@@ -36,6 +36,18 @@ struct iField
     virtual unique_ptr<iField> copy() = 0;
 };
 
+template<typename type>
+inline bool is_zero_or_empty(const type& number)
+{
+    return number==0;
+}
+
+template<>
+inline bool is_zero_or_empty(const string& str)
+{
+    return str.empty();
+}
+
 template<class type>
 struct Field : iField
 {
@@ -45,7 +57,9 @@ struct Field : iField
     }
 
     string getValue() const {
-        return to_string(*(type*)value);
+        stringstream ss;
+        ss << (*(type*)value);
+        return ss.str();
     }
 
     void setValue(const char* str){
@@ -56,7 +70,7 @@ struct Field : iField
     }
 
     bool isNull() const{
-        return *(type*)value==0;
+       return is_zero_or_empty(*(type*)value);
     }
 
     unique_ptr<iField> copy(){
@@ -66,46 +80,21 @@ struct Field : iField
     }
 };
 
-template<>
-struct Field<string> : iField
+template<typename T>
+struct Field<vector<T>> : iField
 {
-
-    Field(string& str){
-        value = &str;
-    }
-
-    string getValue() const {
-        return *(string*)value;
-    }
-    void setValue(const char* str){
-        if(str != NULL)
-            *(string*)value = str;
-    }
-    bool isNull() const{
-        return ((string*)value)->empty();
-    }
-    unique_ptr<iField> copy(){
-        Field<string>* p = new Field<string>(*(string*)value);
-        *p = *this;
-        return unique_ptr<iField>(p);
-    }
-};
-
-template<>
-struct Field<vector<int>> : iField
-{
-    Field(vector<int>& vector){
+    Field(vector<T>& vector){
         value = &vector;
     }
 
     string getValue() const {
-        string str;
-        for(int i: *((vector<int>*)value)){
-            if(str.size())
-                str+=',';
-            str+= to_string(i);
+        stringstream ss;
+        for(T i: *((vector<T>*)value)){
+            if(ss.str().size())
+                ss << ',';
+            ss << i;
         }
-        return str;
+        return ss.str();
     }
     void setValue(const char* str){
         if(str == NULL)
@@ -118,10 +107,10 @@ struct Field<vector<int>> : iField
         }
     }
     bool isNull() const{
-        return ((vector<int>*)value)->empty();
+        return ((vector<T>*)value)->empty();
     }
     unique_ptr<iField> copy(){
-        Field<vector<int>>* p = new Field<vector<int>>(*(vector<int>*)value);
+        Field<vector<T>>* p = new Field<vector<T>>(*(vector<T>*)value);
         *p = *this;
         return unique_ptr<iField>(p);
     }
