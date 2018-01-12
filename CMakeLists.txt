@@ -11,6 +11,6 @@ add_library(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 target_link_libraries(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC src)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(FILES ${HPP_FILES} DESTINATION include/${PROJECT_NAME})
+#install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+#install(FILES ${HPP_FILES} DESTINATION include/${PROJECT_NAME})
 
