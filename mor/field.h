@@ -116,7 +116,10 @@ struct Field<vector<T>> : iField
         return unique_ptr<iField>(p);
     }
 };
-
+/**
+ * É um typedef para conversção de data e hora no formato '%Y-%m-%d %H-%M-%S'
+ * @brief date_time
+ */
 typedef chrono::time_point<std::chrono::system_clock> date_time;
 template<>
 struct Field<date_time> : iField
@@ -127,8 +130,10 @@ struct Field<date_time> : iField
     }
 
     string getValue(const DescField& desc) const {
-        std::time_t tp= chrono::system_clock::to_time_t( *(date_time*)value );
-        return std::asctime(std::gmtime(&tp));
+        auto in_time_t = std::chrono::system_clock::to_time_t(*(date_time*)value);
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S");
+        return ss.str();
     }
     void setValue(const char* str, const DescField& desc){
         if(str == NULL)
@@ -136,7 +141,7 @@ struct Field<date_time> : iField
 
         struct std::tm tm;
         std::istringstream ss(str);
-        ss >> std::get_time(&tm, "%Y-%m-%d %H-%M-%S"); // or just %T in this case
+        ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S"); // or just %T in this case
         std::time_t time = mktime(&tm);
         *(date_time*)value = chrono::system_clock::from_time_t(time);
     }
