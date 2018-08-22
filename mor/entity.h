@@ -5,6 +5,7 @@
 #include "descfield.h"
 #include <typeindex>
 #include "ientity.h"
+#include <boost/any.hpp>
 
 namespace mor {
 
@@ -14,19 +15,15 @@ string tolower_str(string&& str);
 
 const char* remove_prefix_name(const char* str);
 
-
-struct ForeignKey{
-    iField* field;
-    string reference;
-};
+iField* field_i(iEntity* entity, const shared_ptr<iField>& field, const string& name, shared_ptr<type_index> typeinfo, unordered_map<string, string>&& options = {} );
 
 template<class type>
-struct Entity : protected iEntity
+struct Entity : public iEntity
 {
+    static std::unordered_map<string, boost::any> _atrributes;
     static string _entity_name;
     static vector<DescField> _desc_fields;
     vector<shared_ptr<iField>> _fields;
-    vector<ForeignKey> _vecFK;
 
     Entity(const string& table = tolower_str(string( remove_prefix_name(typeid(type).name()) )) ){
         _entity_name = table;
@@ -59,35 +56,26 @@ struct Entity : protected iEntity
     }
 
 protected:
-    iField* field_i(const shared_ptr<iField>& field, string name, shared_ptr<type_index> typeinfo, unordered_map<string, string> options = {} ){
-        _fields.emplace_back(field);
-        auto&& fld = _fields.back();
-
-        if(_fields.size() > _desc_fields.size()){
-            DescField desc{name, options, typeinfo};
-            _desc_fields.emplace_back(desc);
-        }
-
-        return fld.get();
-    }
 
     template<class tVar>
-    iField* field(const tVar& var, string name, unordered_map<string, string> options = {} ){
+    iField* field(const tVar& var, const string& name, unordered_map<string, string>&& options = {} ){
         shared_ptr<iField> f{ new Field<tVar>( const_cast<tVar&>(var) ) };
         shared_ptr<type_index> typeinfo{new type_index(typeid(var))};
 
-        field_i(f, name, typeinfo, options);
+        field_i(this, f, name, typeinfo, std::move(options));
     }
 
-    void foreignKey(iField* field, string reference){
-        _vecFK.emplace_back(ForeignKey{field, reference});
-    }
-
-    vector<DescField> _get_desc_fields(){
+    vector<DescField>& _get_desc_fields(){
         return _desc_fields;
     }
-    vector<shared_ptr<iField>> _get_fields(){
+    vector<shared_ptr<iField>>& _get_fields(){
         return _fields;
+    }
+    std::string _get_name(){
+        return _entity_name;
+    }
+    std::unordered_map<string, boost::any>& _get_atrributes(){
+        return _atrributes;
     }
 };
 
@@ -95,22 +83,8 @@ template<class type>
 string Entity<type>::_entity_name;
 template<class type>
 vector<DescField> Entity<type>::_desc_fields;
+template<class type>
+std::unordered_map<string, boost::any> Entity<type>::_atrributes;
 
 }
 #endif // ORM_H
-
-//template<class tVar>
-//iField* field_e(Entity<tVar>& entity, string name, unordered_map<string, string> options = {} ){
-//    auto it = options.find("field");
-//    if(it!=options.end())
-//    {
-//        for(int i=0; i<entity._desc_fields.size(); i++)
-//            if(entity._desc_fields[i].name == it->second)
-//                return field_i(entity._fields[i]->copy(), name, entity._desc_fields[i].typeinfo, options);
-
-//        throw runtime_error("field: '"+it->second+"', not found in "+entity._entity_name);
-//    }
-//    else
-//        throw runtime_error("Entity: option: 'field' in '"+this->_entity_name+"."+name+"' not found");
-//}
-

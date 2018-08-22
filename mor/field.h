@@ -139,7 +139,7 @@ struct Field<date_time> : iField
         if(str == NULL)
             return;
 
-        struct std::tm tm;
+        struct std::tm tm{};
         std::istringstream ss(str);
         ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S"); // or just %T in this case
         std::time_t time = mktime(&tm);
