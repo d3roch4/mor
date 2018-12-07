@@ -18,8 +18,8 @@ namespace mor {
 
 using namespace std;
 
-struct colon_is_space : std::ctype<char> {
-  colon_is_space() : std::ctype<char>(get_table()) {}
+struct end_string_delimit : std::ctype<char> {
+  end_string_delimit() : std::ctype<char>(get_table()) {}
   static mask const* get_table()
   {
     static mask rc[table_size];
@@ -27,7 +27,7 @@ struct colon_is_space : std::ctype<char> {
     return &rc[0];
   }
 };
-static colon_is_space* is_space = new colon_is_space;
+static end_string_delimit* is_space = new end_string_delimit;
 static locale delimit{std::cin.getloc(), is_space};
 
 template<typename type>
