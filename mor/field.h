@@ -9,7 +9,6 @@
 #include <sstream>
 #include <iomanip>
 #include <unordered_map>
-#include <d3util/stacktrace.h>
 #include "descfield.h"
 #include "ientity.h"
 #include "ifield.h"
@@ -18,8 +17,8 @@ namespace mor {
 
 using namespace std;
 
-struct colon_is_space : std::ctype<char> {
-  colon_is_space() : std::ctype<char>(get_table()) {}
+struct end_string_delimit : std::ctype<char> {
+  end_string_delimit() : std::ctype<char>(get_table()) {}
   static mask const* get_table()
   {
     static mask rc[table_size];
@@ -27,8 +26,8 @@ struct colon_is_space : std::ctype<char> {
     return &rc[0];
   }
 };
-static colon_is_space* is_space = new colon_is_space;
-static locale delimit{std::cin.getloc(), is_space};
+static end_string_delimit* is_space = new end_string_delimit;
+static locale delimit_endl{std::cin.getloc(), is_space};
 
 template<typename type>
 inline bool is_zero_or_empty(const type& number)
@@ -66,7 +65,7 @@ struct Field : iField
         if(str == NULL)
             return;
         stringstream ss(str);
-        ss.imbue(delimit);
+        ss.imbue(delimit_endl);
         ss >> *(type*)value;
     }
 
@@ -185,7 +184,7 @@ struct Field<Object*> : iField
             if(descsChild[i].name == refName)
                 return fieldsChild[i]->setValue(str, descsChild[i]);
 
-        throw_with_trace(runtime_error("Type "+Entity<Object>::_entity_name+", not set with string"));
+        throw(runtime_error("Type "+Entity<Object>::_entity_name+", not set with string"));
     }
     bool isNull() const {
         return false;
