@@ -27,7 +27,11 @@ struct end_string_delimit : std::ctype<char> {
   }
 };
 static end_string_delimit* is_space = new end_string_delimit;
+<<<<<<< HEAD
 static locale delimit_endl{std::cin.getloc(), is_space};
+=======
+static locale delimit{std::cin.getloc(), is_space};
+>>>>>>> c77eb38c3f9a373fd7333682c4f2d8528f222c8a
 
 template<typename type>
 inline bool is_zero_or_empty(const type& number)
