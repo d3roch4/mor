@@ -214,9 +214,8 @@ using has_size = decltype(has_size_impl<T>(0));
  */
 template<typename _Tp>
 struct is_simple_type : public std::integral_constant<bool,
-        std::is_arithmetic<_Tp>::value
+        std::is_fundamental<_Tp>::value
         || std::is_convertible<_Tp, std::string>::value
-        || std::is_enum<_Tp>::value
         || has_size<_Tp>::value >
 { };
 
@@ -224,8 +223,9 @@ struct is_simple_type : public std::integral_constant<bool,
 template<typename _Tp>
 struct is_simple_or_datatime_type : public std::integral_constant<bool,
         is_simple_type<_Tp>::value
-        || std::is_convertible<_Tp, std::chrono::time_point<std::chrono::system_clock>>::value >
-{ };
+        || std::is_convertible<_Tp, std::chrono::time_point<std::chrono::system_clock>>::value
+        || std::is_enum<_Tp>::value >
+{ };  
 
 struct end_string_delimit : std::ctype<char> {
     end_string_delimit() : std::ctype<char>(get_table()) {}
