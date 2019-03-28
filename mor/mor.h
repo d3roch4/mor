@@ -20,7 +20,7 @@
 #define DETAIL_TYPEOF_PROBE(...) (__VA_ARGS__),
 // Strip off the type
 #define STRIP(x) EAT x
-// Show the type without parenthesis
+// Show the type without parenthesis x
 #define PAIR(x) REM x
 
 // A helper metafunction for adding const to a type
