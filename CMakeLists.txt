@@ -8,12 +8,12 @@ option(BUILD_EXAMPLE "Build example code" OFF)
 file(GLOB CPP_FILES mor/*.cpp)
 file(GLOB HPP_FILES mor/*.h)
 
+set(Boost_USE_STATIC_LIBS   ON)
+find_package(Boost COMPONENTS system)
+include_directories(./ ${Boost_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ./ ${Boost_INCLUDE_DIRS})
-
-set(Boost_USE_STATIC_LIBS   ON)
-find_package(Boost COMPONENTS system)
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
